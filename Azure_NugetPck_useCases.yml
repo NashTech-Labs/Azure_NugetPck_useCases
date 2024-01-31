@@ -1,0 +1,103 @@
+parameters:
+- name: nuSpecFilePathForPackaging
+  type: string
+
+- name: versioningScheme
+  type: string
+  default: 'byEnvVar'
+
+- name: versionEnvVar
+  type: string
+  default: 'fullVersion'
+
+- name: configuration
+  type: string
+  default: '' 
+
+- name: packDestination
+  type: string
+  default: ''
+
+- name: includeReferencedProjects
+  type: boolean
+  default: false
+
+- name: majorVersion
+  type: string
+  default: '1'
+
+- name: minorVersion
+  type: string
+  default: '0'
+
+- name: patchVersion
+  type: string
+  default: '0'
+
+- name: packTimezone
+  type: string
+  default: 'utc'
+
+- name: includeSymbols
+  type: boolean
+  default: false
+
+- name: toolPackage
+  type: boolean
+  default: false
+
+
+steps:
+- ${{ if eq( parameters.versioningScheme, 'byEnvVar') }}:
+  - task: NuGetCommand@2
+    displayName: 'Nuget Pack by ENV variable'
+    inputs:
+      command: 'pack'
+      packagesToPack: ${{ parameters.nuSpecFilePathForPackaging }}
+      versioningScheme: ${{ parameters.versioningScheme }}
+      versionEnvVar: ${{ parameters.versionEnvVar }}
+      configuration: ${{ parameters.configuration }}
+      packDestination: ${{ parameters.packDestination }}
+      includeSymbols: ${{ parameters.includeSymbols }}
+      toolPackage: ${{ parameters.toolPackage }}
+
+- ${{ elseif eq( parameters.versioningScheme, 'off') }}:
+  - task: NuGetCommand@2
+    displayName: 'Nuget Pack'
+    inputs:
+      command: 'pack'
+      packagesToPack: ${{ parameters.nuSpecFilePathForPackaging }}
+      versioningScheme: ${{ parameters.versioningScheme }}
+      includeReferencedProjects: ${{ parameters.includeReferencedProjects }}
+      configuration: ${{ parameters.configuration }}
+      packDestination: ${{ parameters.packDestination }}
+      includeSymbols: ${{ parameters.includeSymbols }}
+      toolPackage: ${{ parameters.toolPackage }}
+
+- ${{ elseif eq( parameters.versioningScheme, 'byPrereleaseNumber') }}:
+  - task: NuGetCommand@2
+    displayName: 'Nuget Pack by PrereleaseNumber'
+    inputs:
+      command: 'pack'
+      packagesToPack: ${{ parameters.nuSpecFilePathForPackaging }}
+      versioningScheme: ${{ parameters.versioningScheme }}
+      majorVersion: ${{ parameters.majorVersion }}
+      minorVersion: ${{ parameters.minorVersion }}
+      patchVersion: ${{ parameters.patchVersion }}
+      packTimezone: ${{ parameters.packTimezone }}
+      configuration: ${{ parameters.configuration }}
+      packDestination: ${{ parameters.packDestination }}
+      includeSymbols: ${{ parameters.includeSymbols }}
+      toolPackage: ${{ parameters.toolPackage }}
+
+- ${{ elseif eq( parameters.versioningScheme, 'byBuildNumber') }}:
+  - task: NuGetCommand@2
+    displayName: 'Nuget Pack by BuildNumber'
+    inputs:
+      command: 'pack'
+      packagesToPack: ${{ parameters.nuSpecFilePathForPackaging }}
+      versioningScheme: ${{ parameters.versioningScheme }}
+      configuration: ${{ parameters.configuration }}
+      packDestination: ${{ parameters.packDestination }}
+      includeSymbols: ${{ parameters.includeSymbols }}
+      toolPackage: ${{ parameters.toolPackage }}
